@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1794816575962,
+      "tag": "0000_study_progress_and_quizzes",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794816668265,
+      "tag": "0001_atomic_quiz_awards",
+      "breakpoints": true
+    }
+  ]
+}

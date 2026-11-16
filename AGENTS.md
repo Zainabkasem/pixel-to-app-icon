@@ -31,3 +31,5 @@ use the editor.
 
 - Keep lesson-session detection and oath storage decisions in a browser-safe helper with rule tests; an assistant-only lesson marker separates actual explanations from greetings and refusals.
 - Keep pending oath state in local storage and clear unconfirmed departures on pagehide/startup; browsers cannot guarantee a custom modal or storage writes on tab close/process termination.
+- Keep study rewards authoritative in a row-locked database function called only after server authentication; elapsed focus time and quiz oaths cannot be awarded by the browser.
+- Dedicated study tools share a workspace at /study/$tool; keep pure reward rules and their tests separate from presentation.

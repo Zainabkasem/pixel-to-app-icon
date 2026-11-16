@@ -9,6 +9,7 @@
 @source "../src";
 @import "tw-animate-css";
 @import "katex/dist/katex.min.css";
+@import "@lovable.dev/cloud-auth-js/styles.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -73,22 +74,25 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --font-display: "Cormorant Garamond", "Amiri", serif;
   --font-sans: "Tajawal", system-ui, sans-serif;
+  --color-reward: var(--reward);
+  --color-success: var(--success);
+  --color-photo: var(--photo);
 }
 
 :root {
   --radius: 1rem;
-  --background: oklch(0.13 0.02 285);
+  --background: oklch(0.15 0.024 265);
   --foreground: oklch(0.95 0.03 85);
-  --card: oklch(0.18 0.03 288);
+  --card: oklch(0.19 0.025 265);
   --card-foreground: oklch(0.95 0.03 85);
   --popover: oklch(0.18 0.03 288);
   --popover-foreground: oklch(0.95 0.03 85);
   --primary: oklch(0.86 0.09 82);
   --primary-foreground: oklch(0.16 0.03 285);
-  --secondary: oklch(0.26 0.05 295);
+  --secondary: oklch(0.25 0.028 265);
   --secondary-foreground: oklch(0.93 0.03 85);
   --muted: oklch(0.22 0.03 290);
-  --muted-foreground: oklch(0.72 0.04 295);
+  --muted-foreground: oklch(0.72 0.018 265);
   --accent: oklch(0.62 0.1 300);
   --accent-foreground: oklch(0.97 0.02 85);
   --destructive: oklch(0.65 0.2 25);
@@ -101,6 +105,12 @@
   --gradient-gold: linear-gradient(135deg, oklch(0.9 0.08 85), oklch(0.78 0.11 75));
   --gradient-cosmos: radial-gradient(ellipse at top, oklch(0.24 0.07 295 / 70%), transparent 60%), radial-gradient(ellipse at bottom, oklch(0.2 0.05 280 / 60%), transparent 60%);
   --shadow-glow: 0 0 40px -8px oklch(0.86 0.09 82 / 45%);
+  --reward: oklch(0.77 0.13 55);
+  --success: oklch(0.76 0.12 160);
+  --photo: oklch(0.75 0.09 220);
+  --google-background: oklch(0.19 0.002 265);
+  --google-border: oklch(0.65 0.005 140);
+  --google-foreground: oklch(0.9 0.003 140);
 }
 
 @layer base {
@@ -127,3 +137,15 @@
 .chat-md strong { color: var(--color-primary) } .chat-md code { background: var(--color-muted); padding: 0 .3rem; border-radius: .3rem }
 .chat-md .katex-display { overflow-x: auto; overflow-y: hidden; padding: .25rem 0 }
 .katex { direction: ltr; unicode-bidi: isolate; }
+.study-shell { display: flex; }
+.study-sidebar { display: flex; flex-direction: column; width: 256px; flex-shrink: 0; border-left: 1px solid var(--border); position: sticky; top: 0; height: 100dvh; background: var(--card); }
+.study-main { flex: 1; min-width: 0; }
+.tool-tile { background: var(--card); border-color: var(--border); transition: border-color .2s, transform .2s; }
+.tool-tile:hover { border-color: var(--primary); background: var(--card); transform: translateY(-3px); }
+.tool-icon { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 8px; color: var(--primary); background: color-mix(in oklch, var(--primary) 10%, transparent); }
+.tool-icon-1 { color: var(--photo); background: color-mix(in oklch, var(--photo) 10%, transparent); }
+.tool-icon-3 { color: var(--reward); background: color-mix(in oklch, var(--reward) 10%, transparent); }
+.tool-icon-4 { color: var(--success); background: color-mix(in oklch, var(--success) 10%, transparent); }
+.google-auth { background: var(--google-background); border-color: var(--google-border); color: var(--google-foreground); }
+@media (max-width: 1023px) { .study-sidebar { display: none; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
