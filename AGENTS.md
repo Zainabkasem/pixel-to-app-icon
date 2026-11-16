@@ -28,3 +28,6 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+- Keep lesson-session detection and oath storage decisions in a browser-safe helper with rule tests; an assistant-only lesson marker separates actual explanations from greetings and refusals.
+- Keep pending oath state in local storage and clear unconfirmed departures on pagehide/startup; browsers cannot guarantee a custom modal or storage writes on tab close/process termination.

@@ -6,9 +6,12 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
-import { ArrowUp, GraduationCap, RotateCcw, Square } from "lucide-react";
+import { ArrowUp, GraduationCap, LogOut, RotateCcw, ShieldCheck, Square } from "lucide-react";
 import logo from "@/assets/zophysics_logo.png.asset.json";
 import { LEVELS, isLevel, type LevelId } from "@/lib/ai/levels";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { displayMessageText, isLessonExplanation, PENDING_OATH_KEY, resolveOath } from "@/lib/ai/lesson-session";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -32,6 +35,7 @@ function App() {
   const [level, setLevel] = useState<LevelId | null>(null);
 
   useEffect(() => {
+    if (localStorage.getItem(PENDING_OATH_KEY)) resolveOath(localStorage, false);
     const saved = localStorage.getItem(LEVEL_KEY);
     if (isLevel(saved)) setLevel(saved);
   }, []);
@@ -46,7 +50,7 @@ function App() {
     <main className="min-h-dvh bg-background bg-cosmos text-foreground">
       {screen === "splash" && <Splash onStart={() => setScreen(level ? "chat" : "level")} />}
       {screen === "level" && <LevelPicker current={level} onPick={pick} />}
-      {screen === "chat" && level && <Chat key={level} level={level} onChange={() => setScreen("level")} />}
+      {screen === "chat" && level && <Chat key={level} level={level} onChange={() => setScreen("level")} onExit={() => setScreen("splash")} onReset={() => { setLevel(null); setScreen("splash"); }} />}
     </main>
   );
 }
@@ -122,7 +126,7 @@ function LevelPicker({ current, onPick }: { current: LevelId | null; onPick: (id
 
 const chatKey = (l: LevelId) => `zophysics-chat-${l}`;
 
-function Chat({ level, onChange }: { level: LevelId; onChange: () => void }) {
+function Chat({ level, onChange, onExit, onReset }: { level: LevelId; onChange: () => void; onExit: () => void; onReset: () => void }) {
   const [input, setInput] = useState("");
   const [initial] = useState<UIMessage[]>(() => {
     if (typeof window === "undefined") return [];
@@ -136,6 +140,82 @@ function Chat({ level, onChange }: { level: LevelId; onChange: () => void }) {
   const endRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
   const busy = status === "submitted" || status === "streaming";
+  const [exitAction, setExitAction] = useState<"grade" | "exit" | "clear" | null>(null);
+  const needsOath = useRef(false);
+  const observedIds = useRef(new Set(initial.map((message) => message.id)));
+  const messagesRef = useRef(messages);
+  messagesRef.current = messages;
+
+  useEffect(() => {
+    for (const message of messages) {
+      if (!observedIds.current.has(message.id) && isLessonExplanation(message)) {
+        observedIds.current.add(message.id);
+        needsOath.current = true;
+        localStorage.setItem(PENDING_OATH_KEY, "1");
+      }
+    }
+  }, [messages]);
+
+  const performExit = (action: "grade" | "exit" | "clear") => {
+    if (action === "grade") onChange();
+    else if (action === "exit") onExit();
+    else { setMessages([]); localStorage.removeItem(chatKey(level)); }
+  };
+  const requestExit = (action: "grade" | "exit" | "clear") => {
+    if (needsOath.current) {
+      stop();
+      setExitAction(action);
+    } else { stop(); performExit(action); }
+  };
+  const refuseOath = () => {
+    needsOath.current = false;
+    stop();
+    resolveOath(localStorage, false);
+    setExitAction(null);
+    onReset();
+  };
+  const confirmOath = () => {
+    if (!exitAction) return;
+    localStorage.setItem(chatKey(level), JSON.stringify(messagesRef.current));
+    resolveOath(localStorage, true);
+    needsOath.current = false;
+    const action = exitAction;
+    setExitAction(null);
+    performExit(action);
+  };
+  const exitHandler = useRef(requestExit);
+  exitHandler.current = requestExit;
+
+  useEffect(() => {
+    // A same-URL history entry catches browser Back without leaving the chat.
+    window.history.pushState({ zophysicsChatGuard: true }, "", window.location.href);
+    const back = () => {
+      window.history.pushState({ zophysicsChatGuard: true }, "", window.location.href);
+      exitHandler.current("exit");
+    };
+    const beforeUnload = (event: BeforeUnloadEvent) => {
+      if (!needsOath.current) return;
+      exitHandler.current("exit");
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    const pageHide = () => {
+      if (needsOath.current) resolveOath(localStorage, false);
+    };
+    const pageShow = (event: PageTransitionEvent) => {
+      if (event.persisted && needsOath.current && !localStorage.getItem(PENDING_OATH_KEY)) window.location.reload();
+    };
+    window.addEventListener("popstate", back);
+    window.addEventListener("beforeunload", beforeUnload);
+    window.addEventListener("pagehide", pageHide);
+    window.addEventListener("pageshow", pageShow);
+    return () => {
+      window.removeEventListener("popstate", back);
+      window.removeEventListener("beforeunload", beforeUnload);
+      window.removeEventListener("pagehide", pageHide);
+      window.removeEventListener("pageshow", pageShow);
+    };
+  }, []);
 
   useEffect(() => {
     if (status === "ready" || status === "error") localStorage.setItem(chatKey(level), JSON.stringify(messages));
@@ -163,13 +243,16 @@ function Chat({ level, onChange }: { level: LevelId; onChange: () => void }) {
           <p dir="rtl" className="truncate text-start text-xs text-muted-foreground">{LEVELS[level].ar} · {LEVELS[level].en}</p>
         </div>
         {messages.length > 0 && (
-          <button onClick={() => { setMessages([]); localStorage.removeItem(chatKey(level)); }} aria-label="New chat" className="rounded-full p-2 text-muted-foreground hover:bg-secondary">
+          <Button variant="ghost" size="icon" onClick={() => requestExit("clear")} aria-label="New chat" title="New chat" className="shrink-0 rounded-full text-muted-foreground">
             <RotateCcw className="h-4 w-4" />
-          </button>
+          </Button>
         )}
-        <button onClick={onChange} className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium hover:bg-secondary">
+        <Button variant="outline" size="sm" onClick={() => requestExit("grade")} className="shrink-0 gap-1.5 rounded-full text-xs">
           <GraduationCap className="h-4 w-4 text-primary" /> تغيير المرحلة
-        </button>
+        </Button>
+        <Button variant="ghost" size="icon" onClick={() => requestExit("exit")} aria-label="Exit chat" title="الخروج · Exit chat" className="shrink-0 rounded-full text-muted-foreground">
+          <LogOut />
+        </Button>
       </header>
 
       <div className="flex-1 space-y-4 overflow-y-auto px-4 py-5">
@@ -189,7 +272,7 @@ function Chat({ level, onChange }: { level: LevelId; onChange: () => void }) {
           </div>
         )}
         {messages.map((m) => {
-          const text = m.parts.map((p) => (p.type === "text" ? p.text : "")).join("");
+          const text = m.role === "assistant" ? displayMessageText(m) : m.parts.map((p) => (p.type === "text" ? p.text : "")).join("");
           if (m.role === "user")
             return (
               <div key={m.id} className="flex justify-end">
@@ -239,6 +322,22 @@ function Chat({ level, onChange }: { level: LevelId; onChange: () => void }) {
           )}
         </div>
       </form>
+      <Dialog open={exitAction !== null} onOpenChange={(open) => { if (!open) refuseOath(); }}>
+        <DialogContent dir="rtl" className="w-[calc(100%-2rem)] max-w-lg rounded-lg border-primary/50 p-6 text-center sm:p-8">
+          <ShieldCheck className="mx-auto h-12 w-12 text-primary" />
+          <DialogTitle className="text-center text-2xl leading-relaxed tracking-normal text-primary">شرط القسم عند الخروج</DialogTitle>
+          <DialogDescription className="text-center leading-relaxed">
+            هل فهمت الدرس أو حل المسألة؟ تأكيد القسم يحفظ محادثاتك. رفض القسم أو إغلاق هذه النافذة يحذف جميع المحادثات والصور المحفوظة والمرحلة الدراسية من هذا الجهاز، ويعيدك إلى شاشة الترحيب.
+            <span lang="en" dir="ltr" className="mt-3 block">Confirm to keep your history. Refusing or closing this window permanently deletes all locally saved data.</span>
+          </DialogDescription>
+          <Button onClick={confirmOath} className="h-auto min-h-12 whitespace-normal bg-gold px-4 py-3 text-base font-bold leading-relaxed text-primary-foreground">
+            أقسم بالله أنني فهمت هذا الدرس
+          </Button>
+          <Button variant="outline" onClick={refuseOath} className="h-auto min-h-10 whitespace-normal border-destructive/50 py-2 text-destructive">
+            لا أقسم — حذف البيانات والعودة للبداية
+          </Button>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
