@@ -16,7 +16,7 @@ export function FormulaVault({ level }: { level: LevelId }) {
   const update = (changes: { grade?: SchoolGrade | 'all'; chapter?: string; q?: string; verified?: boolean }) => navigate({ to: '/study/$tool', params: { tool: 'formulas' }, search: prev => ({ ...prev, ...changes }) });
   const selected = data.formulas.filter(f => grade === 'all' || f.grade === grade);
   const chapters = [...new Set(selected.map(f => f.chapter_title))];
-  const query = search.q.trim().toLowerCase();
+  const query = (search.q ?? '').trim().toLowerCase();
   const filtered = selected.filter(f => (!chapter || f.chapter_title === chapter) && (!search.verified || hasVerifiedCitation(f)) && `${f.name} ${f.equation} ${f.variables} ${f.chapter_title}`.toLowerCase().includes(query));
   const complete = isCompleteCatalogue(data);
   const verifiedCount = data.formulas.filter(hasVerifiedCitation).length;
