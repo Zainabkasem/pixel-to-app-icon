@@ -15,6 +15,13 @@
       "when": 1794816668265,
       "tag": "0001_atomic_quiz_awards",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794817342033,
+      "tag": "0002_curriculum_formula_catalogue",
+      "breakpoints": true
     }
   ]
 }

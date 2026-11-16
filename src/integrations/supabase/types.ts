@@ -14,6 +14,59 @@ export type Database = {
   }
   public: {
     Tables: {
+      physics_formulas: {
+        Row: {
+          chapter_number: number | null
+          chapter_title: string
+          context: string | null
+          equation: string
+          grade: string
+          id: string
+          name: string
+          page_number: number | null
+          sort_order: number
+          source_url: string | null
+          variables: string
+          verification_status: string
+        }
+        Insert: {
+          chapter_number?: number | null
+          chapter_title: string
+          context?: string | null
+          equation: string
+          grade: string
+          id?: string
+          name: string
+          page_number?: number | null
+          sort_order?: number
+          source_url?: string | null
+          variables: string
+          verification_status?: string
+        }
+        Update: {
+          chapter_number?: number | null
+          chapter_title?: string
+          context?: string | null
+          equation?: string
+          grade?: string
+          id?: string
+          name?: string
+          page_number?: number | null
+          sort_order?: number
+          source_url?: string | null
+          variables?: string
+          verification_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "physics_formulas_grade_fkey"
+            columns: ["grade"]
+            isOneToOne: false
+            referencedRelation: "physics_textbooks"
+            referencedColumns: ["grade"]
+          },
+        ]
+      }
       physics_quizzes: {
         Row: {
           answers: Json
@@ -44,6 +97,36 @@ export type Database = {
           result?: Json | null
           submitted_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      physics_textbooks: {
+        Row: {
+          edition_year: number
+          grade: string
+          reviewed_pages: number
+          source_url: string | null
+          title: string
+          total_pages: number | null
+          verification_status: string
+        }
+        Insert: {
+          edition_year?: number
+          grade: string
+          reviewed_pages?: number
+          source_url?: string | null
+          title: string
+          total_pages?: number | null
+          verification_status?: string
+        }
+        Update: {
+          edition_year?: number
+          grade?: string
+          reviewed_pages?: number
+          source_url?: string | null
+          title?: string
+          total_pages?: number | null
+          verification_status?: string
         }
         Relationships: []
       }

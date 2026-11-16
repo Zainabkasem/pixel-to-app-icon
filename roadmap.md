@@ -1,4 +1,6 @@
 # Tasks
+- [ ] Compile every formula from all six official 2026 books with verified chapter/page citations. Blocker: the six exact-edition source books have not been verified.
+- [ ] Replace the starter-only vault with a database-backed six-grade catalogue, chapter/search filters and visible source-verification status.
 - [x] Build the post-grade dashboard and dedicated chat, photo solver, formula vault, quiz, focus and rewards views.
 - [x] Add private photo uploads, real image-based AI quizzes, exam oath and saved study rewards.
 - [x] Enforce one-to-six-hour rewards, sequential 14-day ranks, three-day penalties and badge purchases with tests.

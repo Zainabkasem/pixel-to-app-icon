@@ -9,7 +9,7 @@ import { lovable } from '@/integrations/lovable';
 import logo from '@/assets/zophysics_logo.png.asset.json';
 import { LEVELS, isLevel, type LevelId } from '@/lib/ai/levels';
 import { BADGES, HOUR_REWARDS, SCIENTISTS, scientistRank } from '@/lib/study/rules';
-import { FORMULAS } from '@/lib/study/formulas';
+import { FormulaVault } from './formula-vault';
 import { getProgress, studyAction, generateQuiz, submitQuiz } from '@/lib/study/study.functions';
 import { PhotoPicker, type Photo } from './photos';
 import { Chat } from './chat';
@@ -51,7 +51,6 @@ export function Workspace({tool}:{tool:string}){
 }
 
 function SectionTitle({ar,en,icon:Icon}:{ar:string;en:string;icon:typeof Atom}){return <div className="mb-8 flex items-center gap-4"><div className="rounded-md bg-secondary p-3 text-primary"><Icon className="h-6 w-6"/></div><div><h1 className="text-2xl font-bold">{ar}</h1><p className="mt-1 text-sm text-muted-foreground" dir="ltr">{en}</p></div></div>;}
-function FormulaVault({level}:{level:LevelId}){const [search,setSearch]=useState('');const [chapter,setChapter]=useState('all');const rows=FORMULAS.filter(f=>f.levels.includes(level));const chapters=[...new Set(rows.map(f=>f.chapter))];const filtered=rows.filter(f=>(chapter==='all'||f.chapter===chapter)&&`${f.name} ${f.equation} ${f.chapter}`.toLowerCase().includes(search.toLowerCase()));return <><SectionTitle ar="بنك القوانين السريع" en="Formula vault" icon={BookOpen}/><div className="flex flex-wrap gap-3"><label className="flex min-w-0 flex-1 items-center gap-2 rounded-md border border-input bg-card px-3"><Search className="h-4 w-4 text-muted-foreground"/><input aria-label="Search formulas" placeholder="ابحث عن قانون…" value={search} onChange={e=>setSearch(e.target.value)} className="h-11 w-full min-w-0 bg-transparent outline-none"/></label><select aria-label="Chapter" value={chapter} onChange={e=>setChapter(e.target.value)} className="max-w-full rounded-md border border-input bg-card px-3"><option value="all">جميع الفصول</option>{chapters.map(c=><option key={c}>{c}</option>)}</select></div><p className="my-4 text-xs text-muted-foreground">مرجع دراسي مختصر للمرحلة المختارة، وليس فهرساً كاملاً لكتاب 2026.</p><div className="grid gap-4 sm:grid-cols-2">{filtered.map(f=><article key={f.name} className="rounded-lg border border-border bg-card p-5"><p className="text-xs text-muted-foreground">{f.chapter}</p><h2 className="mt-2 text-lg font-bold">{f.name}</h2><p dir="ltr" className="my-5 text-center font-display text-3xl text-primary">{f.equation}</p><p className="text-sm leading-relaxed text-muted-foreground">{f.symbols}</p></article>)}</div>{!filtered.length&&<p className="py-12 text-center text-muted-foreground">لا توجد قوانين مطابقة</p>}</>;}
 function Focus({progress,action,loading}:{progress:Progress;action:(a:'start'|'finish'|'cancel'|'buy',h?:number)=>void;loading:boolean}){
  const [hours,setHours]=useState(1);const [now,setNow]=useState(0);useEffect(()=>{setNow(Date.now());const t=setInterval(()=>setNow(Date.now()),1000);return()=>clearInterval(t);},[]);
  const total=(progress.focus_hours||hours)*3600;const remaining=progress.focus_started_at?Math.max(0,total-Math.floor((now-new Date(progress.focus_started_at).getTime())/1000)):hours*3600;const done=!!progress.focus_started_at&&remaining===0;
