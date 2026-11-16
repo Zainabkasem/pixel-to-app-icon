@@ -63,9 +63,12 @@ function Splash({ onStart }: { onStart: () => void }) {
           Welcome to Zophysics — your smart physics study companion.
         </p>
       </div>
+      <p className="mt-6 rounded-full border border-primary/40 bg-secondary px-4 py-1.5 text-sm text-primary animate-rise">
+        <span dir="rtl">مجاني 100% لطلاب العراق</span> · 100% Free
+      </p>
       <button
         onClick={onStart}
-        className="mt-10 rounded-full bg-gold px-12 py-4 text-lg font-bold text-primary-foreground shadow-glow transition-transform hover:scale-105 active:scale-95"
+        className="mt-6 rounded-full bg-gold px-12 py-4 text-lg font-bold text-primary-foreground shadow-glow transition-transform hover:scale-105 active:scale-95"
       >
         Start / ابدأ
       </button>
@@ -149,14 +152,14 @@ function Chat({ level, onChange }: { level: LevelId; onChange: () => void }) {
 
   const suggestions = LEVELS[level].stage === "college"
     ? ["Explain Gauss's law intuitively", "اشرح معادلة شرودنغر ببساطة"]
-    : ["ما هو قانون نيوتن الثاني؟ مع مثال", "اشرح لي أول فصل في كتابي"];
+    : ["ما هو قانون نيوتن الثاني؟ مع مثال", "اشرح لي صفحة 34 من كتابي"];
 
   return (
     <section className="mx-auto flex h-dvh max-w-2xl flex-col">
       <header className="flex items-center gap-3 border-b border-border bg-background/80 px-4 py-3 backdrop-blur">
         <img src={logo.url} alt="Zophysics" className="h-10 w-10 rounded-full" />
         <div className="min-w-0 flex-1">
-          <p className="font-display text-lg font-bold leading-none text-primary">Zophysics</p>
+          <p className="font-display text-lg font-bold leading-none text-primary">Zophysics <span className="ms-1 rounded-full bg-secondary px-2 py-0.5 font-sans text-[10px] font-medium text-primary">مجاني · Free</span></p>
           <p dir="rtl" className="truncate text-start text-xs text-muted-foreground">{LEVELS[level].ar} · {LEVELS[level].en}</p>
         </div>
         {messages.length > 0 && (
@@ -174,7 +177,8 @@ function Chat({ level, onChange }: { level: LevelId; onChange: () => void }) {
           <div className="mt-10 text-center animate-rise">
             <img src={logo.url} alt="" className="mx-auto w-40 opacity-90" />
             <p dir="rtl" className="mt-3 text-lg font-bold text-primary">اسألني أي شيء في الفيزياء!</p>
-            <p className="text-sm text-muted-foreground">Ask me anything about physics.</p>
+            <p className="text-sm text-muted-foreground">Physics only · Free for every Iraqi student</p>
+            <p dir="rtl" className="mt-1 text-xs text-muted-foreground">فيزياء فقط · مجاني بالكامل</p>
             <div className="mt-6 flex flex-wrap justify-center gap-2">
               {suggestions.map((s) => (
                 <button key={s} dir="auto" onClick={() => sendMessage({ text: s })} className="rounded-full border border-border bg-card px-4 py-2 text-sm hover:border-primary">
